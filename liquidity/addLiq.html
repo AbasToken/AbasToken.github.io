@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/modern-business.css" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+<!-- Bootstrap JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/9.0.2/bignumber.min.js"></script>
+
+    <meta charset="UTF-8">
+    <title>Add Liquidity to SushiSwap Trident Pool</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+</head>
+<body>
+ 
+       <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://abastoken.org/" target="_self" aria-label="FORGE"><img alt="FORGE" src="img/forgeprofile circle-02.png" width="100px" height="110px" class="img-responsive"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right"> <li>
+                        <a href="https://abastoken.org/" style="font-size:1.1em">Home</a>
+                    </li>
+                  <li>
+                    <a href="https://swap.defillama.com/?chain=arbitrum&from=0x0000000000000000000000000000000000000000&to=0x0b549125fbea37e52ee05fa388a3a0a7df792fa7" style="font-size:1.1em">Buy ABAS</a>
+                </li>     
+                    <!--an ordered list stan made me remove 3 times-->
+                   <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="font-size:1.25em">Liquidity<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+
+                            <li>
+                                <a href="addLiq.html"style="font-size:1.1em">Add Liquidity to ABAS/ETH</a>
+                            </li>
+                            <li>
+                                <a href="removeLiq.html"style="font-size:1.1em">Remove Liquidity from ABAS/ETH</a>
+                            </li>
+                            
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="https://abastoken.org/dapp/" style="font-size:1.1em">DAPP - Stake & Auctions</a>
+                    </li>
+                    <li>
+                        <a href="https://abastoken.org/stats.html"style="font-size:1.1em">Token Stats</a>
+                    </li>                    
+                    <!--an ordered list stan made me remove 3 times-->
+                   <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="font-size:1.25em">ABAS Instructions<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+
+                            <li>
+                                <a href="https://abastoken.org/whitepaper.html"style="font-size:1.1em">Whitepaper</a>
+                            </li>
+                            <li>
+                                <a href="https://abastoken.org/howtoauction.html"style="font-size:1.1em">How to Auction</a>
+                            </li>
+                            <li>
+                                <a href="https://abastoken.org/howtostake.html"style="font-size:1.1em">How to Stake</a>
+                            </li>
+                            <li>
+                                <a href="https://abastoken.org/howtomine.html"style="font-size:1.1em">How to Mine</a>
+                            </li>
+                            <li>
+                                <a href="https://abastoken.org/team.html"style="font-size:1.1em">Contact Us</a>
+                            </li>
+                        </ul>
+                    </li>
+                        </ul>
+            </div>
+            <!-- class /.navbar-collapse -->
+        </div>
+        <!-- class /.container -->
+    </nav>
+    
+    <center>
+   <h2>Add Liquidity to ABAS/ETH SushiSwap Pool</h2>
+<button id="connectWalletBtn">Connect Wallet</button><br>
+    <a href="removeLiq.html"style="font-size:1.1em">Click here to remove Liquidity from ABAS/ETH</a>
+<div>
+<div id="YourAddress">Your connected address: ? Connect Wallet</div>
+<div id="reloadTimer">Next reload in: 20 seconds</div>
+<div id="YourBalanceABAS">Your ABAS Balance: ? Connect Wallet</div>
+<div id="YourBalanceETH">Your ETH Balance: ? Connect Wallet</div>
+<div id="YourBalanceLP">Your LP Balance: ? Connect Wallet</div>
+    <label for="tokenAmountInput">ABAS Token Amount:</label>
+    <input id="tokenAmountInput" type="number" min="0" placeholder="Token Amount">
+     <button id="maxTokenBtn">Max</button>
+</div>
+<div>
+    <label for="ethAmountInput">ETH Amount:</label>
+    <input id="ethAmountInput" type="number" min="0" step="0.0000001" placeholder="ETH Amount">
+</div>
+<button id="approveTokenBtn">Approve ABAS Token</button>
+<button id="approveMasterContract22">Approve Master Contract</button>
+<button id="addLiquidityBtn" disabled>Add Liquidity</button>
+<br></br>
+<div id="lpTokenBalanceABAS">TOTAL ABAS LP Pool ABAS Balance: ? Connect Wallet</div>
+<div id="lpTokenBalanceETH">TOTAL ABAS LP Pool ETH Balance: ? Connect Wallet</div>
+<div id="Costof1ABASTokeninETH">1 ABAS Token costs in ETH: ? Connect Wallet</div>
+<div id="lpAllowance">ABAS ALLOWANCE ON CONTRACT: ? Connect Wallet</div>
+<div id="lpMasterAllowance">Is MasterContract Approved to work?: ? Connect Wallet</div>
+</center>
+    <script type="text/javascript">
+        let signer;
+	let provider;
+	let userAddy;
+	let ratiozLP;
+        const contractAddress = '0xD9988b4B5bBC53A794240496cfA9Bf5b1F8E0523';
+        const contractABI = [
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "tokenInput",
+                "type": "tuple[]",
+                "components": [
+                    {"name": "token", "type": "address"},
+                    {"name": "native", "type": "bool"},
+                    {"name": "amount", "type": "uint256"}
+                ]
+            },
+            {"name": "pool", "type": "address"},
+            {"name": "minLiquidity", "type": "uint256"},
+            {"name": "data", "type": "bytes"}
+        ],
+        "name": "addLiquidity",
+        "outputs": [
+            {"name": "liquidity", "type": "uint256"}
+        ],
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "function"
+    }
+];
+
+	const spenderAddress = '0x74c764D41B77DBbb4fe771daB1939B00b146894A';
+
+        const tokenAddress = '0x0B549125fbEA37E52Ee05FA388a3A0a7Df792Fa7';
+        const tokenABI = [
+    {
+        "inputs": [
+            {
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "name": "tokens",
+                "type": "uint256"
+            }
+        ],
+        "name": "approve",
+        "outputs": [
+            {
+                "name": "success",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "tokenOwner",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "name": "balance",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+    "inputs": [
+      {
+        "name": "tokenOwner",
+        "type": "address"
+      },
+      {
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "allowance",
+    "outputs": [
+      {
+        "name": "remaining",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+
+
+
+        const LPtokenAddress = '0x911a89dE0430A5cE3699E57D508f8678Afa1fffc';
+        const LPtokenABI = [
+    {
+        "inputs": [],
+        "name": "getReserves",
+        "outputs": [
+            {"internalType": "uint112", "name": "_reserve0", "type": "uint112"},
+            {"internalType": "uint112", "name": "_reserve1", "type": "uint112"},
+            {"internalType": "uint32", "name": "_blockTimestampLast", "type": "uint32"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [
+            {"internalType": "uint256", "name": "", "type": "uint256"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
+
+
+
+
+
+
+
+        const LPBENTOAddress = '0x74c764d41b77dbbb4fe771dab1939b00b146894a'; 
+        const LPBENTOtokenABI = [
+  {
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      },
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "masterContractApproved",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "masterContract",
+        "type": "address"
+      },
+      {
+        "name": "approved",
+        "type": "bool"
+      },
+      {
+        "name": "v",
+        "type": "uint8"
+      },
+      {
+        "name": "r",
+        "type": "bytes32"
+      },
+      {
+        "name": "s",
+        "type": "bytes32"
+      }
+    ],
+    "name": "setMasterContractApproval",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }];
+
+
+
+
+
+
+
+
+
+
+
+
+
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+                    document.getElementById('addLiquidityBtn').disabled = false;
+                    const { chainId } = await provider.getNetwork();
+            	     userAddy = await signer.getAddress();
+                    document.getElementById('YourAddress').innerText = `Your connected address: ${userAddy}`;
+                    if (chainId !== 42161) { // Check if the chain ID is not 324
+                                        alert('You are on the wrong network. Please switch to the correct network. Arbitrum One Blockchain, ChainID: 42161');
+                                        // Optionally, try to switch the user's network using window.ethereum.request
+                                        return;
+                    }
+                    console.log("Wallet connected");
+                } catch (error) {
+                    console.error("Error connecting to wallet:", error);
+                }
+            } else {
+                alert('MetaMask is not installed. Please install it to use this feature.');
+            }
+        }
+        
+        
+        
+        
+        
+        
+        
+        async function fetchBalances() {
+            const address = await signer.getAddress();
+            const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer); // Define `tokenAddress` and `tokenABI`
+            // Fetch token balance
+            const tokenBalance = await tokenContract.balanceOf(address);
+            console.log("TBalance: ", tokenBalance);
+            document.getElementById('tokenAmountInput').max = ethers.utils.formatEther(tokenBalance);
+            const tokenBalance2html = ethers.utils.formatEther(tokenBalance);
+	    document.getElementById('YourBalanceABAS').innerText = `Your ABAS Balance: ${tokenBalance2html}`;
+            // Fetch ETH balance
+            const ethBalance = await provider.getBalance(address);	
+            const maxBalance = await fetchTokenBalance();
+	    tokenAmountInput.value = ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
+	    document.getElementById('ethAmountInput').max = ratioz * ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
+
+            document.getElementById('ethAmountInput').step = (ratioz * ethers.utils.formatEther(maxBalance, 18) / 10).toFixed(8);
+            
+            const tokenBalance2html2 = ethers.utils.formatEther(ethBalance);
+	    document.getElementById('YourBalanceETH').innerText = `Your ETH Balance: ${tokenBalance2html2}`;
+            console.log("Balances fetched");
+            
+            const tokenContractff = new ethers.Contract(LPtokenAddress, tokenABI, signer); // Define `tokenAddress` and `tokenABI`
+            // Fetch token balance
+            const tokenBalanceff = await tokenContractff.balanceOf(address);
+            console.log("TBalance: ", tokenBalance);
+            const tokenBalance2html222222  = ethers.utils.formatEther(tokenBalanceff);
+	    document.getElementById('YourBalanceLP').innerText = `Your LP Balance: ${tokenBalance2html222222}`;
+	    
+            
+        }
+        
+        async function fetchLPTokenBalanceABAS() {
+	    const userAddress = await signer.getAddress(); // Assuming signer is already initialized
+	    const tokenContract = new ethers.Contract(LPtokenAddress, LPtokenABI, signer); // Define `tokenAddress` and `tokenABI`
+
+	    const balance = await tokenContract.getReserves();
+	    console.log("LP BALANCES: ", balance);
+	    const formattedBalance = ethers.utils.formatUnits(balance[0], 18);
+	    document.getElementById('lpTokenBalanceETH').innerText = `TOTAL ABAS LP Pool ABAS Balance: ${formattedBalance}`;
+
+	    const formattedBalance2 = ethers.utils.formatUnits(balance[1], 18);
+	    document.getElementById('lpTokenBalanceABAS').innerText = `TOTAL ABAS LP Pool ETH Balance: ${formattedBalance2}`;
+	    const formattedBalanceRatio = ethers.utils.formatUnits(balance[1], 18) / ethers.utils.formatUnits(balance[0], 18);
+	    document.getElementById('Costof1ABASTokeninETH').innerText = `1 ABAS Token costs in ETH: ${formattedBalanceRatio}`;
+
+	    return formattedBalanceRatio; // Convert BigNumber to string
+	}
+
+        async function fetchLPTokenBalanceETH() {
+	    const userAddress = await signer.getAddress(); // Assuming signer is already initialized
+	    const tokenContract = new ethers.Contract(LPtokenAddress, LPtokenABI, signer); // Define `tokenAddress` and `tokenABI`
+
+	    const balance = await tokenContract.getReserves();
+	    console.log("LP BALANCES: ", balance);
+	    return balance[1].toString(); // Convert BigNumber to string
+	}
+
+        async function fetchMinAmountOfTokens() {
+	    const userAddress = await signer.getAddress(); // Assuming signer is already initialized
+	    const tokenContract = new ethers.Contract(LPtokenAddress, LPtokenABI, signer); // Define `tokenAddress` and `tokenABI`
+
+	    const balance = await tokenContract.getReserves();
+	    const tSupply = await tokenContract.totalSupply();
+	    console.log("ABAS BALANCES: ", balance[0].toString());
+	    console.log("ABAS tSupply: ", tSupply.toString());
+	    ratiozLP = tSupply / balance[0];
+	    return balance[0].toString(); // Convert BigNumber to string
+	}
+
+        
+        
+        async function fetchTokenBalance() {
+	    const userAddress = await signer.getAddress(); // Assuming signer is already initialized
+	    const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer); // Define `tokenAddress` and `tokenABI`
+
+	    const balance = await tokenContract.balanceOf(userAddress);
+	    return balance.toString(); // Convert BigNumber to string
+	}
+
+        
+        
+        async function fetchTokenApproved() {
+	    const userAddress = await signer.getAddress(); // Assuming signer is already initialized
+	    const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer); // Define `tokenAddress` and `tokenABI`
+	    tokenAllowance = await tokenContract.allowance(userAddress, spenderAddress);
+	    const allowanceDisplay = ethers.utils.formatEther(tokenAllowance);
+	    document.getElementById('lpAllowance').innerText = `ABAS ALLOWANCE ON CONTRACT: ${allowanceDisplay}`;
+	  
+	    return tokenAllowance.toString(); // Convert BigNumber to string
+	}
+
+        
+        async function fetchMasterContractApproved() {
+	    const userAddress = await signer.getAddress(); // Assuming signer is already initialized
+	    const masterContract = new ethers.Contract(LPBENTOAddress, LPBENTOtokenABI, signer);
+	    mastallowance = await masterContract.masterContractApproved(contractAddress, userAddress);
+	    document.getElementById('lpMasterAllowance').innerText = `Master Allowance T/F: ${mastallowance}`;
+	    document.getElementById('addLiquidityBtn').disabled = !mastallowance;
+	    
+	    
+	        // Check the master contract approval status and hide the button if approved
+	    const approveMasterContractBtn = document.getElementById('approveMasterContract22');
+	    if (mastallowance) {
+		approveMasterContractBtn.style.display = 'none'; // Hide the button
+	    } else {
+		approveMasterContractBtn.style.display = ''; // Show the button if not approved
+	    }
+	  
+	    return mastallowance; // Convert BigNumber to string
+	}
+
+        
+        
+        // Implement the approveToken function
+	async function approveToken() {
+	    try {
+	 	const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
+		const amountToApprove = ethers.utils.parseUnits("21000000", 18); // Example: Approve 1000 tokens (adjust the amount and decimals as needed)
+		const txResponse = await tokenContract.approve(spenderAddress, amountToApprove);
+		await txResponse.wait();
+		console.log("Token approved successfully");
+	    } catch (error) {
+		console.error("Failed to approve token: ", error);
+	    }
+	}
+	
+	
+        // Implement the approveToken function
+	async function approveMasterContract() {
+	    try {
+	 	const userAddress = await signer.getAddress(); // Assuming signer is already initialized
+	 	const masterContract = new ethers.Contract(LPBENTOAddress, LPBENTOtokenABI, signer);
+		const txResponse = await masterContract.setMasterContractApproval(userAddress, contractAddress, true, 0, "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000");
+		await txResponse.wait();
+		console.log("Master Contract approved successfully");
+		await fetchMasterContractApproved();
+	    } catch (error) {
+		console.error("Failed to approve Master Contract for you: ", error);
+	    }
+	}
+
+
+        function toFixed2(x) {
+	    if (Math.abs(x) < 1.0) {
+		const e = parseInt(x.toString().split('e-')[1]);
+		if (e) {
+		    x *= Math.pow(10, e - 1);
+		    x = '0.' + (new Array(e)).join('0') + x.toString().substring(2);
+		}
+	    } else {
+		let e = parseInt(x.toString().split('+')[1]);
+		if (e > 20) {
+		    e -= 20;
+		    x /= Math.pow(10, e);
+		    x += (new Array(e + 1)).join('0');
+		}
+	    }
+	    return x;
+	}
+
+        function scientificToDecimalStr(num) {
+	    const n = new Number(num);
+	    let str = n.toString();
+	    if (str.includes('e')) {
+		str = n.toFixed2(18); // Adjust the number of decimals as needed.
+	    }
+	    // Ensure no trailing zeros or unnecessary decimal points.
+	    return str.replace(/\.?0+$/, '');
+	}
+
+
+        async function addLiquidity() {
+            const contract = new ethers.Contract(contractAddress, contractABI, signer);
+            // Assuming the token uses 18 decimal places; adjust if it's different
+	    const ABASAmountInput = document.getElementById('tokenAmountInput').value;
+	    const ETHAmountInput = document.getElementById('ethAmountInput').value;
+			    
+	    var tokenAmountInput222 = new BigNumber(document.getElementById('tokenAmountInput').value);
+	    var weiMultiplier = new BigNumber("1e18");
+	    
+	    var amountInWeiOFABASToken = tokenAmountInput222.multipliedBy(weiMultiplier).toFixed(0);
+	    console.log("ELP Amount in ABAS : ", (amountInWeiOFABASToken));
+	    var tokenAmountInput222 = new BigNumber(document.getElementById('ethAmountInput').value);
+	    var weiMultiplier = new BigNumber("1e18");
+	    
+	    var amountInWeiOFWETHToken = tokenAmountInput222.multipliedBy(weiMultiplier).toFixed(0);
+	    console.log("ELP Amount in WETH : ", (amountInWeiOFWETHToken));
+			    // Example function to safely parse input values
+	    function parseInputValue(inputValue, decimals) {
+		    if (!inputValue || isNaN(inputValue)) {
+			return "0";
+		    }
+		    // Truncate the value to the allowed decimals
+		    const factor = 10 ** decimals;
+		    const truncatedValue = Math.floor(parseFloat(inputValue) * factor) / factor;
+		    const decimalString = scientificToDecimalStr(truncatedValue);
+		    return ethers.utils.parseUnits(decimalString.toString(), decimals);
+	    }
+
+
+
+	    const ABASAmount22 = toFixed2(ABASAmountInput);
+	    const ETHAmount22 = toFixed2(ETHAmountInput);
+	    console.log("ETH AMOUNTZ TOFIXED : ", ETHAmount22);
+	    const ABASAmount = parseInputValue(ABASAmount22, 18);
+	    const ETHAmount = parseInputValue(ETHAmount22, 18);
+            const tokenInputs = [
+                {
+                    token: '0x0B549125fbEA37E52Ee05FA388a3A0a7Df792Fa7',
+                    native: true,
+                    amount: amountInWeiOFABASToken, // Example amount
+                },
+                {
+                    token: '0x0000000000000000000000000000000000000000',
+                    native: true,
+                    amount: amountInWeiOFWETHToken, // Example amount
+                }
+            ];
+            const minPossible = ratiozLP * ABASAmount /1e18;
+            console.log("11111: ", minPossible);
+            const poolAddress = '0x911a89dE0430A5cE3699E57D508f8678Afa1fffc';
+            var minLiquidity = (minPossible * 99 / 100).toFixed(0);
+            console.log("11111: ", minLiquidity);
+            minLiquidity = ethers.utils.parseUnits(minLiquidity.toString(), 18);
+            console.log("min liq: ", minLiquidity.toString());
+            const address = await signer.getAddress();
+            const hexAddressWithoutPrefix = address.substring(2); // Remove '0x'
+            const dataHexString = "0x000000000000000000000000" + hexAddressWithoutPrefix;
+            const data = dataHexString;
+    
+            console.log(data);
+
+            try {
+                const txResponse = await contract.addLiquidity(tokenInputs, poolAddress, minLiquidity, data, {
+                    value: ETHAmount, // If the function is payable, specify the ETH amount to send
+                });
+                await txResponse.wait();
+                console.log("Liquidity added successfully");
+            } catch (error) {
+            	console.log("error: ", error);
+		if(error.data !== undefined){
+			
+		    	console.log("Error data: ", error.data);
+		    	const datazzzzzzz = error.data.message;
+		    	    if (datazzzzzzz.includes("TransferFrom failed")) {
+		    		alert("Lower your ABAS Amount you are over max");
+		    		}
+		    		
+		    		
+		    		
+		    		
+		    		  if (datazzzzzzz.includes("insufficient")) {
+		    	
+		    		alert("insufficient funds for gas.  Check stuff.  \n"+datazzzzzzz);
+		    		
+		    		}
+		    		
+		    		}
+                console.error("Failed to add liquidity:", error);
+            }
+        }
+        
+        
+        let tokenAllowance = ethers.BigNumber.from("0");
+        
+        
+        
+        
+        
+        
+        let reloadIntervalId, countdownIntervalId;
+
+	function startDataReload() {
+	    clearInterval(reloadIntervalId); // Clear any existing data reload interval
+	    clearInterval(countdownIntervalId); // Clear any existing countdown interval
+
+	    const reloadData = async () => {
+		// Your data fetching functions here
+		await connectWallet();
+		ratioz = await fetchLPTokenBalanceABAS(); //FETCH LP Asset balances
+		
+		await fetchBalances();
+		await fetchTokenApproved();
+		await fetchMasterContractApproved();
+		const maxBalance = await fetchTokenBalance();
+		var tokenalues =  ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
+		console.log("1: ", tokenalues);
+		console.log("2: ", parseFloat(tokenAllowance.toString()));
+		if (tokenalues > parseFloat(tokenAllowance.toString())) {
+				addLiquidityBtn.style.visibility = 'hidden';
+				alert("Your input exceeds your allowance. Please approve more tokens before adding liquidity.");
+		} else {
+				addLiquidityBtn.style.visibility = 'visible';
+		}
+		// Add any other data fetching functions you need to reload
+		console.log('Data reloaded');
+	    };
+
+	    const updateCountdown = () => {
+		let countdown = 20; // Reset countdown to 15 seconds for each cycle
+		clearInterval(countdownIntervalId); // Ensure to clear previous interval to prevent duplicates
+		document.getElementById('reloadTimer').innerText = `Next reload in: ${countdown} seconds`;
+		countdownIntervalId = setInterval(() => {
+		    countdown--;
+		    if (countdown >= 0) {
+		        document.getElementById('reloadTimer').innerText = `Next reload in: ${countdown} seconds`;
+		    } else {
+		        clearInterval(countdownIntervalId); // Stop the countdown when it reaches 0
+		        countdown = 15; // Optional: Reset countdown for demonstration purposes
+		        // Note: The countdown will automatically reset due to reloadData being called again.
+		    }
+		}, 1000);
+	    };
+
+	    reloadIntervalId = setInterval(async () => {
+		await reloadData();
+		// The countdown is reset here via updateCountdown at the start of each data reload cycle
+		updateCountdown(); 
+	    }, 20000); // Set to reload data every 15 seconds
+
+	    // Initial load and start of the countdown
+	    reloadData();
+	    updateCountdown();
+	}
+		
+		
+		
+		
+		
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        let ratioz
+        window.onload = async () => {
+	    startDataReload(); // Restart reloading data and countdown on wallet connect
+            console.log("min liq3: ");
+	    await connectWallet();
+            console.log("min liq4: ");
+	    await fetchBalances(); // Fetch balances after wallet is connected
+	    
+            console.log("min liq5: ");
+	    ratioz = await fetchLPTokenBalanceABAS(); // Fetch LP Asset balances
+	    await fetchLPTokenBalanceETH(); // Fetch LP Asset balances
+	    await fetchTokenApproved();
+	    await fetchMasterContractApproved();
+	    await fetchMinAmountOfTokens();
+	};
+        document.getElementById('connectWalletBtn').addEventListener('click', async () => {
+	    startDataReload(); // Restart reloading data and countdown on wallet connect
+        
+            console.log("min liq1: ");
+            await connectWallet();
+            console.log("min liq2: ");
+            await fetchBalances(); // Fetch balances after wallet is connected
+	    ratioz = await fetchLPTokenBalanceABAS(); //FETCH LP Asset balances
+	    await fetchLPTokenBalanceETH(); //FETCH LP Asset balances
+	    await fetchTokenApproved();
+	    await fetchMasterContractApproved();
+	    await fetchMinAmountOfTokens();
+	});
+        maxTokenBtn.addEventListener('click', async () => {
+	    const maxBalance = await fetchTokenBalance();
+	    tokenAmountInput.value = ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
+	    ethAmountInput.value = ratioz * ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
+	    var tokenalues =  ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
+	    console.log("!!!!!: 1:: ",tokenalues);
+	    console.log("@@@@@: 2:: ",parseFloat(tokenAllowance.toString()));
+	    if (tokenalues > parseFloat(tokenAllowance.toString())) {
+	    	    addLiquidityBtn.style.visibility = 'hidden';
+	  	    alert("Your input exceeds your allowance. Please approve more tokens before adding liquidity.");
+	    } else {
+	    	    addLiquidityBtn.style.visibility = 'visible';
+	    }
+	});
+	// Add click event listener to the approve button
+	document.getElementById('approveTokenBtn').addEventListener('click', approveToken);
+	
+        	// Add click event listener to the approve button
+	document.getElementById('approveMasterContract22').addEventListener('click', approveMasterContract);
+	
+        
+        document.getElementById('addLiquidityBtn').addEventListener('click', addLiquidity);
+        
+        // Assuming ratioz is globally available or passed appropriately
+
+	const tokenAmountInput = document.getElementById('tokenAmountInput');
+	const ethAmountInput = document.getElementById('ethAmountInput');
+
+	// Convert ETH to ABAS based on the user's input
+	ethAmountInput.addEventListener('input', () => {
+	    if (!ratioz || ratioz === 0) return; // Check if ratioz is valid
+	    const ethAmount = parseFloat(ethAmountInput.value);
+	    const tokenAmount = ethAmount / ratioz; // Convert ETH to ABAS
+	    tokenAmountInput.value = isNaN(tokenAmount) ? '' : tokenAmount; // Update tokenAmountInput
+	});
+
+	// Convert ABAS to ETH based on the user's input
+	tokenAmountInput.addEventListener('input', () => {
+	    if (!ratioz || ratioz === 0) return; // Check if ratioz is valid
+	    const tokenAmount = parseFloat(tokenAmountInput.value);
+	    const ethAmount = tokenAmount * ratioz; // Convert ABAS to ETH
+	    ethAmountInput.value = isNaN(ethAmount) ? '' : ethAmount; // Update ethAmountInput
+	});
+		
+	// Define a variable outside of your event listener to track the last time the alert was shown
+	let lastAlertTime = 0;
+
+	tokenAmountInput.addEventListener('input', () => {
+	    const inputAmount = ethers.utils.parseUnits(tokenAmountInput.value || "0", 18);
+	    const addLiquidityBtn = document.getElementById('addLiquidityBtn');
+	    const now = Date.now(); // Current timestamp in milliseconds
+	    const diff = now - lastAlertTime; // Time difference since last alert
+
+	    if (inputAmount.gt(tokenAllowance)) {
+		addLiquidityBtn.style.visibility = 'hidden';
+		if (diff > 15000) { // 15 seconds have passed
+		    alert("Your input exceeds your allowance. Please approve more tokens before adding liquidity.");
+		    lastAlertTime = now; // Reset the last alert time
+		}
+	    } else {
+		addLiquidityBtn.style.visibility = 'visible';
+	    }
+	});
+    // Your existing conversion logic...
+
+    </script>
+</body>
+</html>
+

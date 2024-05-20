@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/dappNew/static/css/main.7eff9c00.chunk.css",
+    "main.js": "/dappNew/static/js/main.6c78c538.chunk.js",
+    "main.js.map": "/dappNew/static/js/main.6c78c538.chunk.js.map",
+    "runtime-main.js": "/dappNew/static/js/runtime-main.5ae921b8.js",
+    "runtime-main.js.map": "/dappNew/static/js/runtime-main.5ae921b8.js.map",
+    "static/js/2.5bd818c5.chunk.js": "/dappNew/static/js/2.5bd818c5.chunk.js",
+    "static/js/2.5bd818c5.chunk.js.map": "/dappNew/static/js/2.5bd818c5.chunk.js.map",
+    "index.html": "/dappNew/index.html",
+    "static/css/main.7eff9c00.chunk.css.map": "/dappNew/static/css/main.7eff9c00.chunk.css.map",
+    "static/js/2.5bd818c5.chunk.js.LICENSE.txt": "/dappNew/static/js/2.5bd818c5.chunk.js.LICENSE.txt",
+    "static/media/dai.a2c311e8.png": "/dappNew/static/media/dai.a2c311e8.png",
+    "static/media/eth.6e1743e3.png": "/dappNew/static/media/eth.6e1743e3.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.5ae921b8.js",
+    "static/js/2.5bd818c5.chunk.js",
+    "static/css/main.7eff9c00.chunk.css",
+    "static/js/main.6c78c538.chunk.js"
+  ]
+}
