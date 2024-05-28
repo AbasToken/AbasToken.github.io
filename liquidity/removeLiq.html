@@ -95,7 +95,7 @@
 <div>
 
 <div id="YourAddress">Your connected address: ? Connect Wallet</div>
-<div id="reloadTimer">Next reload in: 20 seconds</div>
+<div id="reloadTimer">Next reload in: 40 seconds</div>
 <div id="YourBalanceABAS">Your ABAS Balance: ? Connect Wallet</div>
 <div id="YourBalanceETH">Your ETH Balance: ? Connect Wallet</div>
     <label for="tokenAmountInput">LP Token Amount:</label>
@@ -935,7 +935,7 @@
 	    };
 
 	    const updateCountdown = () => {
-		let countdown = 20; // Reset countdown to 15 seconds for each cycle
+		let countdown = 40; // Reset countdown to 15 seconds for each cycle
 		clearInterval(countdownIntervalId); // Ensure to clear previous interval to prevent duplicates
 		document.getElementById('reloadTimer').innerText = `Next reload in: ${countdown} seconds`;
 		countdownIntervalId = setInterval(() => {
@@ -954,7 +954,7 @@
 		await reloadData();
 		// The countdown is reset here via updateCountdown at the start of each data reload cycle
 		updateCountdown(); 
-	    }, 20000); // Set to reload data every 15 seconds
+	    }, 40000); // Set to reload data every 15 seconds
 
 	    // Initial load and start of the countdown
 	    reloadData();
