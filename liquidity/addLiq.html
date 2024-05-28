@@ -93,7 +93,7 @@
     <a href="removeLiq.html"style="font-size:1.1em">Click here to remove Liquidity from ABAS/ETH</a>
 <div>
 <div id="YourAddress">Your connected address: ? Connect Wallet</div>
-<div id="reloadTimer">Next reload in: 20 seconds</div>
+<div id="reloadTimer">Next reload in: 3 seconds</div>
 <div id="YourBalanceABAS">Your ABAS Balance: ? Connect Wallet</div>
 <div id="YourBalanceETH">Your ETH Balance: ? Connect Wallet</div>
 <div id="YourBalanceLP">Your LP Balance: ? Connect Wallet</div>
@@ -350,15 +350,17 @@
             // Fetch token balance
             const tokenBalance = await tokenContract.balanceOf(address);
             console.log("TBalance: ", tokenBalance);
-            document.getElementById('tokenAmountInput').max = ethers.utils.formatEther(tokenBalance);
             const tokenBalance2html = ethers.utils.formatEther(tokenBalance);
 	    document.getElementById('YourBalanceABAS').innerText = `Your ABAS Balance: ${tokenBalance2html}`;
             // Fetch ETH balance
             const ethBalance = await provider.getBalance(address);	
             const maxBalance = await fetchTokenBalance();
-	    tokenAmountInput.value = ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
-	    document.getElementById('ethAmountInput').max = ratioz * ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
+            if(document.getElementById('ethAmountInput').value == 0){
+            	    tokenAmountInput.value = ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
+	    	document.getElementById('ethAmountInput').max = ratioz * ethers.utils.formatUnits(maxBalance, 18); // Assuming token uses 18 decimal places
+	    }
 
+            document.getElementById('tokenAmountInput').max = ethers.utils.formatEther(tokenBalance);
             document.getElementById('ethAmountInput').step = (ratioz * ethers.utils.formatEther(maxBalance, 18) / 10).toFixed(8);
             
             const tokenBalance2html2 = ethers.utils.formatEther(ethBalance);
@@ -643,7 +645,7 @@
 	    };
 
 	    const updateCountdown = () => {
-		let countdown = 20; // Reset countdown to 15 seconds for each cycle
+		let countdown = 3; // Reset countdown to 15 seconds for each cycle
 		clearInterval(countdownIntervalId); // Ensure to clear previous interval to prevent duplicates
 		document.getElementById('reloadTimer').innerText = `Next reload in: ${countdown} seconds`;
 		countdownIntervalId = setInterval(() => {
@@ -662,7 +664,7 @@
 		await reloadData();
 		// The countdown is reset here via updateCountdown at the start of each data reload cycle
 		updateCountdown(); 
-	    }, 20000); // Set to reload data every 15 seconds
+	    }, 3000); // Set to reload data every 15 seconds
 
 	    // Initial load and start of the countdown
 	    reloadData();
@@ -787,4 +789,3 @@
     </script>
 </body>
 </html>
-
