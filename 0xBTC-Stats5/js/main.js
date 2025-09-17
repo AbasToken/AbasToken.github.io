@@ -38,7 +38,7 @@ const _MINIMUM_TARGET_BN = new Eth.BN(_MINIMUM_TARGET);
 const _IDEAL_BLOCK_TIME_SECONDS = _ETH_BLOCKS_PER_REWARD * _SECONDS_PER_ETH_BLOCK;
 
 /* TODO: figure out why it doesn't work w metamask */
-var eth = new Eth(new Eth.HttpProvider("https://eth-mainnet.g.alchemy.com/v2/_i8fDF_qN40wSRgcxP4dtpQMyowEENv3"));
+var eth = new Eth(new Eth.HttpProvider("https://eth.llamarpc.com"));
 // if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
 //   var eth = new Eth(window.web3.currentProvider);
 // } else {
@@ -849,7 +849,258 @@ function sleep(seconds) {
   return new Promise(resolve => setTimeout(resolve, seconds * 1000));
 }
 
-/* TODO use hours_into_past */
+/* Export/Import System for Mining Data */
+
+/* Function to export all local storage data as JSON */
+function exportMiningData() {
+  try {
+    const exportData = {
+      lastDifficultyStartBlock: localStorage.getItem('lastDifficultyStartBlock_0xbtc35_Sep9'),
+      lastMintBlock: localStorage.getItem('lastMintBlock_0xbtc35_Sep9'),
+      mintData: localStorage.getItem('mintData_0xbtc35_Sep9'),
+      exportTimestamp: Date.now(),
+      exportDate: new Date().toISOString(),
+      version: "1.0"
+    };
+    
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create download link
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mining_data_export_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    log('Mining data exported successfully');
+    return true;
+  } catch (error) {
+    log('Error exporting mining data:', error);
+    return false;
+  }
+}
+
+/* Function to import mining data from URL or file */
+async function importMiningDataFromURL(url) {
+  try {
+    log('Fetching mining data from URL:', url);
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const importData = await response.json();
+    return processMiningDataImport(importData, url);
+  } catch (error) {
+    log('Error importing mining data from URL:', error);
+    alert('Error importing data from URL: ' + error.message);
+    return false;
+  }
+}
+
+/* Function to import mining data from file input */
+function importMiningDataFromFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const importData = JSON.parse(e.target.result);
+        resolve(processMiningDataImport(importData, file.name));
+      } catch (error) {
+        log('Error parsing imported file:', error);
+        alert('Error parsing imported file: ' + error.message);
+        reject(error);
+      }
+    };
+    reader.onerror = function(error) {
+      log('Error reading file:', error);
+      reject(error);
+    };
+    reader.readAsText(file);
+  });
+}
+
+/* Function to process imported data and merge with existing data */
+function processMiningDataImport(importData, source) {
+  try {
+    log('Processing imported mining data from:', source);
+    
+    // Validate import data structure
+    if (!importData.mintData) {
+      throw new Error('Invalid import data: missing mintData');
+    }
+    
+    const importedMintData = JSON.parse(importData.mintData);
+    const importedLastBlock = Number(importData.lastMintBlock);
+    const importedDifficultyBlock = Number(importData.lastDifficultyStartBlock);
+    
+    // Get current local data
+    const currentMintData = localStorage.getItem('mintData_0xbtc35_Sep9');
+    const currentLastBlock = Number(localStorage.getItem('lastMintBlock_0xbtc35_Sep9') || 0);
+    
+    let mergedData = [];
+    let newDataCount = 0;
+    
+    if (currentMintData) {
+      const currentData = JSON.parse(currentMintData);
+      
+      // Only import data that's newer than what we have
+      if (importedLastBlock > currentLastBlock) {
+        // Merge data, avoiding duplicates
+        const currentTxHashes = new Set(currentData.map(block => block[1])); // tx hash is at index 1
+        
+        importedMintData.forEach(importedBlock => {
+          if (!currentTxHashes.has(importedBlock[1])) {
+            mergedData.push(importedBlock);
+            newDataCount++;
+          }
+        });
+        
+        // Combine and sort by block number (descending)
+        mergedData = [...currentData, ...mergedData];
+        mergedData.sort((a, b) => b[0] - a[0]); // Sort by block number descending
+        
+        // Update localStorage with merged data
+        localStorage.setItem('mintData_0xbtc35_Sep9', JSON.stringify(mergedData));
+        localStorage.setItem('lastMintBlock_0xbtc35_Sep9', Math.max(currentLastBlock, importedLastBlock).toString());
+        localStorage.setItem('lastDifficultyStartBlock_0xbtc35_Sep9', importedDifficultyBlock.toString());
+        
+        log(`Successfully imported ${newDataCount} new transactions`);
+        log(`Total transactions now: ${mergedData.length}`);
+        alert(`Import successful! Added ${newDataCount} new transactions.\nTotal transactions: ${mergedData.length}`);
+      } else {
+        log('Imported data is not newer than current data, skipping import');
+        alert('Imported data is not newer than current data. No import needed.');
+      }
+    } else {
+      // No existing data, import everything
+      localStorage.setItem('mintData_0xbtc35_Sep9', importData.mintData);
+      localStorage.setItem('lastMintBlock_0xbtc35_Sep9', importData.lastMintBlock);
+      localStorage.setItem('lastDifficultyStartBlock_0xbtc35_Sep9', importData.lastDifficultyStartBlock);
+      
+      newDataCount = importedMintData.length;
+      log(`Successfully imported ${newDataCount} transactions (no existing data)`);
+      alert(`Import successful! Imported ${newDataCount} transactions.`);
+    }
+    
+    return true;
+  } catch (error) {
+    log('Error processing imported data:', error);
+    alert('Error processing imported data: ' + error.message);
+    return false;
+  }
+}
+
+/* Function to check if we should start from imported data block */
+function getOptimalStartBlock(current_eth_block, last_imported_mint_block, stats) {
+  const last_reward_eth_block = getValueFromStats('Last Eth Block', stats);
+  const calculated_start = Math.max(current_eth_block - 2500000, last_imported_mint_block + 1);
+  
+  // If imported data has a higher block number, start from there
+  if (last_imported_mint_block > 0 && last_imported_mint_block < last_reward_eth_block) {
+    log(`Using imported data starting point: block ${last_imported_mint_block + 1}`);
+    return last_imported_mint_block + 1;
+  }
+  
+  return calculated_start;
+}
+
+/* Updated function to handle URL input and file input */
+function handleImportInput() {
+  const importInput = document.getElementById('importInput').value.trim();
+  
+  if (!importInput) {
+    alert('Please enter a URL or select a file');
+    return;
+  }
+  
+  // Check if it's a URL
+  if (importInput.startsWith('http://') || importInput.startsWith('https://')) {
+    importMiningDataFromURL(importInput);
+  } else {
+    alert('Please enter a valid URL starting with http:// or https://');
+  }
+}
+
+/* Function to handle file input change */
+function handleFileImport(input) {
+  const file = input.files[0];
+  if (file) {
+    importMiningDataFromFile(file)
+      .then(success => {
+        if (success) {
+          // Optionally refresh the page or update the display
+          // location.reload();
+        }
+      })
+      .catch(error => {
+        log('File import failed:', error);
+      });
+  }
+}
+
+/* HTML for the export/import interface */
+const exportImportHTML = `
+<div id="exportImportSection" style="margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+  <h3>Mining Data Export/Import</h3>
+  
+  <!-- Export Section -->
+  <div style="margin-bottom: 15px;">
+    <h4>Export Data</h4>
+    <button id="exportBtn" onclick="exportMiningData()" style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Export Mining Data
+    </button>
+    <small style="display: block; margin-top: 5px; color: #666;">
+      Downloads all cached mining data as a JSON file
+    </small>
+  </div>
+  
+  <!-- Import Section -->
+  <div style="margin-bottom: 15px;">
+    <h4>Import Data from URL</h4>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <input type="text" id="importInput" placeholder="https://example.com/mining_data.json" 
+             style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+      <button onclick="handleImportInput()" 
+              style="padding: 8px 16px; background-color: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Import from URL
+      </button>
+    </div>
+    <small style="display: block; margin-top: 5px; color: #666;">
+      Import mining data from a URL (e.g., GitHub raw file)
+    </small>
+  </div>
+  
+  <!-- File Import Section -->
+  <div>
+    <h4>Import Data from File</h4>
+    <input type="file" id="fileInput" accept=".json" 
+           style="margin-bottom: 5px;"
+           onchange="handleFileImport(this)">
+    <small style="display: block; color: #666;">
+      Select a previously exported JSON file
+    </small>
+  </div>
+</div>
+`;
+
+/* Function to initialize the export/import interface */
+function initializeExportImport() {
+  // Add the HTML to the page (adjust selector as needed)
+  const container = document.getElementById('exportImportContainer') || document.body;
+  const div = document.createElement('div');
+  div.innerHTML = exportImportHTML;
+  container.appendChild(div);
+}
+
+
+  
+/* COMPLETE MAIN FUNCTION - TODO use hours_into_past */
 function updateAllMinerInfo(eth, stats, hours_into_past){
   log('updateAllMinerInfo');
 
@@ -870,9 +1121,9 @@ var last_reward_eth_block =  getValueFromStats('Last Eth Block', stats)
   // check to see if the browser has any data in localStorage we can use.
   // don't use the data, though, if it's from an old difficulty period
   try {
-    var last_diff_block_storage = Number(localStorage.getItem('lastDifficultyStartBlock_0xbtc3'));
-    last_imported_mint_block = Number(localStorage.getItem('lastMintBlock_0xbtc3'));
-    var mint_data = localStorage.getItem('mintData_0xbtc3');
+    var last_diff_block_storage = Number(localStorage.getItem('lastDifficultyStartBlock_0xbtc35_Sep9'));
+    last_imported_mint_block = Number(localStorage.getItem('lastMintBlock_0xbtc35_Sep9'));
+    var mint_data = localStorage.getItem('mintData_0xbtc35_Sep9');
 
     if (mint_data !== null && last_diff_block_storage == last_difficulty_start_block) {
       mined_blocks = JSON.parse(mint_data);
@@ -892,25 +1143,199 @@ var last_reward_eth_block =  getValueFromStats('Last Eth Block', stats)
     mined_blocks.length = 0;
   }
 
-  var start_log_search_at = Math.max(current_eth_block-2500000, last_imported_mint_block + 1);
-	if(last_reward_eth_block - start_log_search_at < 1){
-		start_log_search_at = last_reward_eth_block - 1
-}
+  // Use the optimal start block that considers imported data
+  var start_log_search_at = getOptimalStartBlock(current_eth_block, last_imported_mint_block, stats);
+  
+  if(last_reward_eth_block - start_log_search_at < 1){
+    start_log_search_at = last_reward_eth_block - 1;
+  }
 		
   log("searching last_reward_eth_block", last_reward_eth_block, "blocks");
   log("searching last_difficulty_start_block", last_difficulty_start_block, "blocks");
 	
   log("searching last", last_reward_eth_block - start_log_search_at, "blocks");
 
-  /* get all mint() transactions in the last N blocks */
+  /* Function to save progress to localStorage */
+  function saveProgressToStorage(progressData, newResults, lastProcessedBlock) {
+    try {
+      // Update the progress data with new results
+      progressData.allResults = progressData.allResults.concat(newResults);
+      progressData.lastProcessedBlock = lastProcessedBlock;
+      progressData.lastSaveTime = Date.now();
+      
+      // Process new results into mined_blocks format
+      newResults.forEach(function(transaction){
+        var tx_hash = transaction['transactionHash'];
+        var block_number = parseInt(transaction['blockNumber'].toString());
+        var miner_address = getMinerAddressFromTopic(transaction['topics'][1].toString());
+        var miner_address_TO = getMinerAddressFromTopic(transaction['topics'][2].toString());
+        var data = transaction['data'];
+        
+        progressData.minedBlocks.unshift([block_number, tx_hash, miner_address, data, miner_address_TO]);
+        
+        if(progressData.minerBlockCount[miner_address] === undefined) {
+          progressData.minerBlockCount[miner_address] = 1;
+        } else {
+          progressData.minerBlockCount[miner_address] += 1;
+        }
+      });
+      
+      // Save progress to localStorage
+      localStorage.setItem('scanProgress_0xbtc35_Sep9', JSON.stringify(progressData));
+      log(`Progress saved: ${progressData.allResults.length} total transactions, last block: ${lastProcessedBlock}`);
+      
+    } catch (error) {
+      log('Error saving progress:', error);
+    }
+  }
+
+  /* Function to load existing progress from localStorage */
+function loadProgressFromStorage(fromBlock, toBlock) {
+  try {
+    const savedProgress = localStorage.getItem('scanProgress_0xbtc35_Sep9');
+    if (savedProgress) {
+      const progressData = JSON.parse(savedProgress);
+      
+      log('Comparing saved range:', progressData.fromBlock, 'to', progressData.toBlock);
+      log('With current range:', fromBlock, 'to', toBlock);
+      
+      // Allow small differences in block ranges (within 100 blocks)
+      const fromBlockDiff = Math.abs(progressData.fromBlock - fromBlock);
+      const toBlockDiff = Math.abs(progressData.toBlock - toBlock);
+      const isCompatibleRange = fromBlockDiff <= 100 && toBlockDiff <= 100;
+      
+      log('Block differences - from:', fromBlockDiff, 'to:', toBlockDiff);
+      log('Compatible range:', isCompatibleRange);
+      
+      if (isCompatibleRange) {
+        // Adjust the progress data to match current range
+        progressData.fromBlock = fromBlock;
+        progressData.toBlock = toBlock;
+        
+        log(`Resuming from saved progress: ${progressData.allResults.length} transactions, last block: ${progressData.lastProcessedBlock}`);
+        return progressData;
+      } else {
+        log('Saved progress is for significantly different block range, starting fresh');
+        localStorage.removeItem('scanProgress_0xbtc35_Sep9');
+      }
+    } else {
+      log('No saved progress found in localStorage');
+    }
+  } catch (error) {
+    log('Error loading progress:', error);
+  }
+  
+  // Return fresh progress data
+  return {
+    fromBlock: fromBlock,
+    toBlock: toBlock,
+    allResults: [],
+    minedBlocks: [...mined_blocks],
+    minerBlockCount: {...miner_block_count},
+    lastProcessedBlock: fromBlock - 1,
+    lastSaveTime: Date.now(),
+    startTime: Date.now()
+  };
+}
+  /* Function to process logs in chunks of 499 blocks */
+  async function processLogsInChunks(fromBlock, toBlock) {
+    const CHUNK_SIZE = 499;
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 2000; // 2 seconds
+    const SAVE_EVERY_N_CHUNKS = 25; // Save progress every 25 chunks
+    const totalBlocks = toBlock - fromBlock + 1;
+    const chunks = Math.ceil(totalBlocks / CHUNK_SIZE);
+    
+    log(`Processing ${totalBlocks} blocks in ${chunks} chunks of ${CHUNK_SIZE} blocks each`);
+    log(`Will save progress every ${SAVE_EVERY_N_CHUNKS} chunks`);
+    
+    // Load existing progress or start fresh
+    let progressData = loadProgressFromStorage(fromBlock, toBlock);
+    
+    // Calculate which chunk to start from based on saved progress
+    let startChunk = 0;
+    if (progressData.lastProcessedBlock >= fromBlock) {
+      startChunk = Math.floor((progressData.lastProcessedBlock - fromBlock + 1) / CHUNK_SIZE);
+      log(`Resuming from chunk ${startChunk + 1}/${chunks}`);
+    }
+    
+    for (let i = startChunk; i < chunks; i++) {
+      const chunkStart = fromBlock + (i * CHUNK_SIZE);
+      const chunkEnd = Math.min(chunkStart + CHUNK_SIZE - 1, toBlock);
+      
+      // Skip if we've already processed this chunk
+      if (chunkEnd <= progressData.lastProcessedBlock) {
+        continue;
+      }
+      
+      let retryCount = 0;
+      let chunkSuccess = false;
+      let chunkResults = [];
+      
+      while (!chunkSuccess && retryCount <= MAX_RETRIES) {
+        try {
+          if (retryCount > 0) {
+            log(`Retrying chunk ${i + 1}/${chunks} (attempt ${retryCount + 1}/${MAX_RETRIES + 1}): blocks ${chunkStart} to ${chunkEnd}`);
+          } else {
+            log(`Processing chunk ${i + 1}/${chunks}: blocks ${chunkStart} to ${chunkEnd}`);
+          }
+          
+          chunkResults = await eth.getLogs({
+            fromBlock: chunkStart,
+            toBlock: chunkEnd,
+            address: _CONTRACT_ADDRESS,
+            topics: [_MINT_TOPIC, null],
+          });
+          
+          log(`Chunk ${i + 1} returned ${chunkResults.length} transactions`);
+          chunkSuccess = true;
+          
+        } catch (error) {
+          retryCount++;
+          log(`Error processing chunk ${i + 1} (blocks ${chunkStart}-${chunkEnd}), attempt ${retryCount}:`, error.message || error);
+          
+          if (retryCount <= MAX_RETRIES) {
+            log(`Sleeping ${RETRY_DELAY}ms before retry...`);
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          } else {
+            log(`Failed to process chunk ${i + 1} after ${MAX_RETRIES + 1} attempts, skipping...`);
+            chunkResults = []; // Empty results for failed chunk
+            chunkSuccess = true; // Move to next chunk
+          }
+        }
+      }
+      
+      // Save progress every N chunks or on last chunk
+      if (chunkSuccess && (((i + 1) % SAVE_EVERY_N_CHUNKS === 0) || (i === chunks - 1))) {
+        saveProgressToStorage(progressData, chunkResults, chunkEnd);
+        log(`Progress checkpoint: ${i + 1}/${chunks} chunks completed`);
+      } else if (chunkSuccess) {
+        // Just add to progress data without saving to localStorage yet
+        progressData.allResults = progressData.allResults.concat(chunkResults);
+        progressData.lastProcessedBlock = chunkEnd;
+      }
+      
+      // Add a small delay between chunks to avoid rate limiting
+      if (i < chunks - 1) {
+        await new Promise(resolve => setTimeout(resolve, 400));
+      }
+    }
+    
+    // Clear progress data when scan is complete
+    localStorage.removeItem('scanProgress_0xbtc35_Sep9');
+    log('Scan completed, progress data cleared');
+    
+    // Update the main function's variables with progress data
+    mined_blocks = progressData.minedBlocks;
+    miner_block_count = progressData.minerBlockCount;
+    
+    return progressData.allResults;
+  }
+
+  /* get all mint() transactions in the last N blocks using chunked approach */
   /* more info: https://github.com/ethjs/ethjs/blob/master/docs/user-guide.md#ethgetlogs */
   /* and https://ethereum.stackexchange.com/questions/12950/what-are-event-topics/12951#12951 */
-  eth.getLogs({
-    fromBlock: start_log_search_at,
-    toBlock: last_reward_eth_block,
-    address: _CONTRACT_ADDRESS,
-    topics: [_MINT_TOPIC, null],
-  })
+  processLogsInChunks(start_log_search_at, last_reward_eth_block)
   .then((result) => {
 
     log("got filter results:", result.length, "transactions");
@@ -944,9 +1369,9 @@ var last_reward_eth_block =  getValueFromStats('Last Eth Block', stats)
     });
 
     if (result.length > 0) {
-      localStorage.setItem('mintData_0xbtc3', JSON.stringify(mined_blocks));
-      localStorage.setItem('lastMintBlock_0xbtc3', mined_blocks[0][0]);
-      localStorage.setItem('lastDifficultyStartBlock_0xbtc3', last_difficulty_start_block.toString());
+      localStorage.setItem('mintData_0xbtc35_Sep9', JSON.stringify(mined_blocks));
+      localStorage.setItem('lastMintBlock_0xbtc35_Sep9', mined_blocks[0][0]);
+      localStorage.setItem('lastDifficultyStartBlock_0xbtc35_Sep9', last_difficulty_start_block.toString());
     }
 
     log("processed blocks:",
@@ -1098,6 +1523,8 @@ innerhtml_buffer  += '';
 
 
 }
+
+
 
 /* get last hours_into_past worth of mined 0xbtc blocks, save to a CSV file */
 function getMinerInfoCSV(eth, stats, hours_into_past){
@@ -1267,6 +1694,7 @@ function updateStatsTable(stats){
         /* once we have grabbed all stats, update the calculated ones */
         if(areAllBlockchainStatsLoaded(stats)) {
           updateStatsThatHaveDependencies(stats);
+          initializeExportImport() ;
           /* hack: check if miner table exists - if it doesn't then skip loading blocks */
           if(el('#minerstats')) {
             setTimeout(()=>{updateAllMinerInfo(eth, stats, 24)}, 0);
