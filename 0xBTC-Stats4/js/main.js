@@ -1239,7 +1239,7 @@ function loadProgressFromStorage(fromBlock, toBlock) {
 }
   /* Function to process logs in chunks of 499 blocks */
   async function processLogsInChunks(fromBlock, toBlock) {
-    const CHUNK_SIZE = 499;
+    const CHUNK_SIZE = 49900;
     const MAX_RETRIES = 3;
     const RETRY_DELAY = 2000; // 2 seconds
     const SAVE_EVERY_N_CHUNKS = 25; // Save progress every 25 chunks
