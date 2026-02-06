@@ -855,9 +855,9 @@ function sleep(seconds) {
 function exportMiningData() {
   try {
     const exportData = {
-      lastDifficultyStartBlock: localStorage.getItem('lastDifficultyStartBlock_0xbtc35_Sep9'),
-      lastMintBlock: localStorage.getItem('lastMintBlock_0xbtc35_Sep9'),
-      mintData: localStorage.getItem('mintData_0xbtc35_Sep9'),
+      lastDifficultyStartBlock: localStorage.getItem('lastDifficultyStartBlock_0xbtc35_Sep91'),
+      lastMintBlock: localStorage.getItem('lastMintBlock_0xbtc35_Sep91'),
+      mintData: localStorage.getItem('mintData_0xbtc35_Sep91'),
       exportTimestamp: Date.now(),
       exportDate: new Date().toISOString(),
       version: "1.0"
@@ -940,8 +940,8 @@ function processMiningDataImport(importData, source) {
     const importedDifficultyBlock = Number(importData.lastDifficultyStartBlock);
     
     // Get current local data
-    const currentMintData = localStorage.getItem('mintData_0xbtc35_Sep9');
-    const currentLastBlock = Number(localStorage.getItem('lastMintBlock_0xbtc35_Sep9') || 0);
+    const currentMintData = localStorage.getItem('mintData_0xbtc35_Sep91');
+    const currentLastBlock = Number(localStorage.getItem('lastMintBlock_0xbtc35_Sep91') || 0);
     
     let mergedData = [];
     let newDataCount = 0;
@@ -966,9 +966,9 @@ function processMiningDataImport(importData, source) {
         mergedData.sort((a, b) => b[0] - a[0]); // Sort by block number descending
         
         // Update localStorage with merged data
-        localStorage.setItem('mintData_0xbtc35_Sep9', JSON.stringify(mergedData));
-        localStorage.setItem('lastMintBlock_0xbtc35_Sep9', Math.max(currentLastBlock, importedLastBlock).toString());
-        localStorage.setItem('lastDifficultyStartBlock_0xbtc35_Sep9', importedDifficultyBlock.toString());
+        localStorage.setItem('mintData_0xbtc35_Sep91', JSON.stringify(mergedData));
+        localStorage.setItem('lastMintBlock_0xbtc35_Sep91', Math.max(currentLastBlock, importedLastBlock).toString());
+        localStorage.setItem('lastDifficultyStartBlock_0xbtc35_Sep91', importedDifficultyBlock.toString());
         
         log(`Successfully imported ${newDataCount} new transactions`);
         log(`Total transactions now: ${mergedData.length}`);
@@ -979,9 +979,9 @@ function processMiningDataImport(importData, source) {
       }
     } else {
       // No existing data, import everything
-      localStorage.setItem('mintData_0xbtc35_Sep9', importData.mintData);
-      localStorage.setItem('lastMintBlock_0xbtc35_Sep9', importData.lastMintBlock);
-      localStorage.setItem('lastDifficultyStartBlock_0xbtc35_Sep9', importData.lastDifficultyStartBlock);
+      localStorage.setItem('mintData_0xbtc35_Sep91', importData.mintData);
+      localStorage.setItem('lastMintBlock_0xbtc35_Sep91', importData.lastMintBlock);
+      localStorage.setItem('lastDifficultyStartBlock_0xbtc35_Sep91', importData.lastDifficultyStartBlock);
       
       newDataCount = importedMintData.length;
       log(`Successfully imported ${newDataCount} transactions (no existing data)`);
@@ -1121,9 +1121,9 @@ var last_reward_eth_block =  getValueFromStats('Last Eth Block', stats)
   // check to see if the browser has any data in localStorage we can use.
   // don't use the data, though, if it's from an old difficulty period
   try {
-    var last_diff_block_storage = Number(localStorage.getItem('lastDifficultyStartBlock_0xbtc35_Sep9'));
-    last_imported_mint_block = Number(localStorage.getItem('lastMintBlock_0xbtc35_Sep9'));
-    var mint_data = localStorage.getItem('mintData_0xbtc35_Sep9');
+    var last_diff_block_storage = Number(localStorage.getItem('lastDifficultyStartBlock_0xbtc35_Sep91'));
+    last_imported_mint_block = Number(localStorage.getItem('lastMintBlock_0xbtc35_Sep91'));
+    var mint_data = localStorage.getItem('mintData_0xbtc35_Sep91');
 
     if (mint_data !== null && last_diff_block_storage == last_difficulty_start_block) {
       mined_blocks = JSON.parse(mint_data);
@@ -1369,9 +1369,9 @@ function loadProgressFromStorage(fromBlock, toBlock) {
     });
 
     if (result.length > 0) {
-      localStorage.setItem('mintData_0xbtc35_Sep9', JSON.stringify(mined_blocks));
-      localStorage.setItem('lastMintBlock_0xbtc35_Sep9', mined_blocks[0][0]);
-      localStorage.setItem('lastDifficultyStartBlock_0xbtc35_Sep9', last_difficulty_start_block.toString());
+      localStorage.setItem('mintData_0xbtc35_Sep91', JSON.stringify(mined_blocks));
+      localStorage.setItem('lastMintBlock_0xbtc35_Sep91', mined_blocks[0][0]);
+      localStorage.setItem('lastDifficultyStartBlock_0xbtc35_Sep91', last_difficulty_start_block.toString());
     }
 
     log("processed blocks:",
