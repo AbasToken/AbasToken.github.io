@@ -80,6 +80,7 @@ var known_miners = {
 "0x3572ca2d7845c7e7f396cd6dff8af93f7ea67e85" : [ "Holder #40",        "https://etherscan.io/address/0x3572ca2d7845c7e7f396cd6dff8af93f7ea67e85", pool_colors.blue ],
 "0x23ad7ef87ea5b9d39af53a68ee5d54b4ef62f820" : [ "Holder #40",        "https://etherscan.io/address/0x23ad7ef87ea5b9d39af53a68ee5d54b4ef62f820", pool_colors.blue ],
 
+"0xd93752b85f5732294826cf16dca96a426a0cca99" : [ "Holder #1",        "https://etherscan.io/address/0xd93752b85f5732294826cf16dca96a426a0cca99", pool_colors.green ],
 "0xe2fe530c047f2d85298b07d9333c05737f1435fb" : [ "Holder #1",        "https://etherscan.io/address/0xe2fe530c047f2d85298b07d9333c05737f1435fb", pool_colors.green ],
 "0x25599b4c5d678299680c84f904001aa7661d77f7" : [ "Holder #2",        "https://etherscan.io/address/0x25599b4c5d678299680c84f904001aa7661d77f7", pool_colors.green ],
 "0xa0ca05ef0b36977ad8bd845dd51d21b9f741f60b" : [ "Holder #3",        "https://etherscan.io/address/0xa0ca05ef0b36977ad8bd845dd51d21b9f741f60b", pool_colors.green ],
@@ -207,7 +208,9 @@ var known_miners = {
 }
 
 var known_miners2 = {
-
+  "0xa3a7b6f88361f48403514059f1f16c8e78d60eec" : [ "Arbitrum bridge",  "https://etherscan.io/address/0xa3a7b6f88361f48403514059f1f16c8e78d60eec", pool_colors.blue], // added 2020-02-23
+  "0xc36442b4a4522e871399cd717abdd847ab11fe88" : [ "Uniswap Positions",  "https://etherscan.io/address/0xc36442b4a4522e871399cd717abdd847ab11fe88", pool_colors.blue], // added 2020-02-23
+  "0xc92e8bdf79f0507f65a392b0ab4667716bfe0110" : [ "CowSwap",  "https://etherscan.io/address/0xc92e8bdf79f0507f65a392b0ab4667716bfe0110", pool_colors.blue], // added 2020-02-23
   "0x7d3ebd2b56651d164fc36180050e9f6f7b890e9d" : [ "MVIS Mining Pool",  "http://mvis.ca",                 pool_colors.blue ],  // added 2020-02-23
     "0x27b9e289251bf21ecb0e2b6359afa173452a6d85" : [ "MVIS Mining Pool Hot Wallet",  "https://etherscan.io/address/0x27b9e289251bf21ecb0e2b6359afa173452a6d85",                 pool_colors.blue ],  // added 2020-02-23
   "0x53222470cdcfb8081c0e3a50fd106f0d69e63f20" : [ "1inch",        "https://etherscan.io/address/0x53222470cdcfb8081c0e3a50fd106f0d69e63f20", pool_colors.red ],
@@ -215,7 +218,11 @@ var known_miners2 = {
   "0x1111111254eeb25477b68fb85ed929f73a960582" : [ "1inch",        "https://etherscan.io/address/0x1111111254eeb25477b68fb85ed929f73a960582", pool_colors.red ],
   "0xaff587846a44aa086a6555ff69055d3380fd379a" : [ "0xBTC Uniswap v3 Pool",        "https://etherscan.io/address/0xaff587846a44aa086a6555ff69055d3380fd379a", pool_colors.orange ],
   "0xc12c4c3e0008b838f75189bfb39283467cf6e5b3" : [ "0xBTC Uniswap v2 Pool",        "https://etherscan.io/address/0xc12c4c3e0008b838f75189bfb39283467cf6e5b3", pool_colors.orange ],
-  "0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45" : [ "Uni v3 Router",        "https://etherscan.io/address/0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45", pool_colors.red ],
+  "0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45" : [ "Uni v3 Router",        "https://etherscan.io/address/0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45", pool_colors.blue ],
+  "0x000000000022d473030f116ddee9f6b43ac78ba3" : [ "Uni Permit2",        "https://etherscan.io/address/0x000000000022d473030f116ddee9f6b43ac78ba3", pool_colors.blue],
+  "0x313cd1962cb6fa0a53900586c19373939f781909" : [ "B Zero X",        "https://etherscan.io/address/0x313cd1962cb6fa0a53900586c19373939f781909", pool_colors.green ],
+  "0x881d40237659c251811cec9c364ef91dc08d300c" : [ "Metamask",        "https://etherscan.io/address/0x881d40237659c251811cec9c364ef91dc08d300c", pool_colors.orange ],
+  "0x0000000000001ff3684f28c67538d4d072c22734" : [ "0xSettler",        "https://etherscan.io/address/0x0000000000001ff3684f28c67538d4d072c22734", pool_colors.pink ],
   "0xc12c4c3e0008b838f75189bfb39283467cf6e5b3" : [ "0xBTC Uniswap v2 Pool",        "https://etherscan.io/address/0xc12c4c3e0008b838f75189bfb39283467cf6e5b3", pool_colors.red ],
    "0x74de5d4fcbf63e00296fd95d33236b9794016631" : [ "Metamask Swaps",        "https://etherscan.io/address/0x74de5d4fcbf63e00296fd95d33236b9794016631", pool_colors.brown ],
   "0x167152a46e8616d4a6892a6afd8e52f060151c70" : [ "Miners Guild",        "https://etherscan.io/address/0x167152a46e8616d4a6892a6afd8e52f060151c70", pool_colors.red ], "0x9008d19f58aabd9ed0d60971565aa8510560ab41" : [ "CowSwap Router",        "https://etherscan.io/address/0x9008d19f58aabd9ed0d60971565aa8510560ab41", pool_colors.brown ],
@@ -837,12 +844,7 @@ function getMinerAddressFromTopic(topic) {
   return '0x' + topic.substr(26, 41);
 }
 function OnTheList(minerAddress){
-if(minerAddress == "0xaff587846a44aa086a6555ff69055d3380fd379a"){
-return true;
-}
-else{
-return false;
-}
+  return known_miners[minerAddress] !== undefined;
 }
 
 function sleep(seconds) {
@@ -999,7 +1001,7 @@ function processMiningDataImport(importData, source) {
 /* Function to check if we should start from imported data block */
 function getOptimalStartBlock(current_eth_block, last_imported_mint_block, stats) {
   const last_reward_eth_block = getValueFromStats('Last Eth Block', stats);
-  const calculated_start = Math.max(current_eth_block - 2500000, last_imported_mint_block + 1);
+  const calculated_start = Math.max(current_eth_block - 5000000, last_imported_mint_block + 1);
   
   // If imported data has a higher block number, start from there
   if (last_imported_mint_block > 0 && last_imported_mint_block < last_reward_eth_block) {
@@ -1146,6 +1148,7 @@ var last_reward_eth_block =  getValueFromStats('Last Eth Block', stats)
   // Use the optimal start block that considers imported data
   var start_log_search_at = getOptimalStartBlock(current_eth_block, last_imported_mint_block, stats);
   
+  log("searching START BLOCK IS ", start_log_search_at, "block");
   if(last_reward_eth_block - start_log_search_at < 1){
     start_log_search_at = last_reward_eth_block - 1;
   }
@@ -1356,10 +1359,10 @@ function loadProgressFromStorage(fromBlock, toBlock) {
       // log('  block=', block_number);
       // log('  miner=', miner_address)
 	if(OnTheList(miner_address)){
-	console.log("YES IT IS3");
+	console.log("YES IT IS4");
       mined_blocks.unshift([block_number, tx_hash, miner_address, data, miner_address_TO])
 
-	}      mined_blocks.unshift([block_number, tx_hash, miner_address, data, miner_address_TO])
+	}     // mined_blocks.unshift([block_number, tx_hash, miner_address, data, miner_address_TO])
 
       if(miner_block_count[miner_address] === undefined) {
         miner_block_count[miner_address] = 1;
@@ -1481,7 +1484,10 @@ function loadProgressFromStorage(fromBlock, toBlock) {
 	var addrTO = block_info[4];
       var miner_name_link2 = getMinerNameLinkHTML(addrTO, known_miners2);
 	var test = parseInt((data55).toString()) / 10** 8;
-      var miner_name_link = getMinerNameLinkHTML(addr, known_miners2);
+  if(test > 2000000){
+    test = "Maximum Approved";
+  }
+      var miner_name_link = getMinerNameLinkHTML(addr, known_miners);
 
       var transaction_url = _BLOCK_EXPLORER_TX_URL + tx_hash;
       var block_url = _BLOCK_EXPLORER_BLOCK_URL + eth_block;
@@ -1494,7 +1500,7 @@ function loadProgressFromStorage(fromBlock, toBlock) {
   	console.log('Before sleep');
   	console.log('After sleep');
 	dataMoreThan10000 = true
-	if(((known_miners[addr] !== undefined) || test > 14500) && (!(known_miners3[addr] !== undefined)) && (!(known_miners3[addrTO] !== undefined))){
+if(known_miners[addr] !== undefined ){
 
       innerhtml_buffer  += '<tr><td>'
         + get_date_from_eth_block(eth_block) + '</td><td>'
